@@ -182,11 +182,6 @@ h1 {
   max-width: 480px;
 }
 
-.project-inline-form__label {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
 .project-inline-form__input {
   width: 100%;
 }
@@ -201,19 +196,6 @@ h1 {
 .project-inline-confirm__actions {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.project-inline-confirm p {
-  margin: 0 0 8px;
-  font-size: 0.84rem;
-}
-
-.selection-toolbar {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
   flex-wrap: wrap;
 }
 

@@ -126,6 +126,15 @@
       </button>
     </section>
 
+    @if (projectLaunchVisualState().active) {
+      <p
+        class="dashboard__feedback"
+        aria-live="polite"
+      >
+        {{ projectLaunchVisualState().message }}
+      </p>
+    }
+
     @if (isProjectLaunchConfigMode()) {
       <section class="copy-inline-panel" aria-label="Seleccionar accesos para abrir proyecto">
         <p class="copy-inline-panel__title">Selecciona accesos para "Abrir proyecto"</p>

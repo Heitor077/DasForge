@@ -1,5 +1,10 @@
 import { LauncherCapabilities, LauncherResult } from './launcher.model';
 
+export interface SystemMemoryInfo {
+  total: number;
+  free: number;
+}
+
 export interface DesktopLauncherApi {
   runtime: 'desktop';
   platform: string;
@@ -8,4 +13,5 @@ export interface DesktopLauncherApi {
   openFolder(target: string): Promise<LauncherResult>;
   openResource(target: string): Promise<LauncherResult>;
   openExternalApp(target: string): Promise<LauncherResult>;
+  getSystemMemoryInfo(): Promise<SystemMemoryInfo | null>;
 }

@@ -1,7 +1,8 @@
 ﻿const { contextBridge, ipcRenderer } = require('electron');
 
 const IPC_CHANNELS = {
-  launcherOpen: 'launcher:open'
+  launcherOpen: 'launcher:open',
+  launcherMemoryInfo: 'launcher:memory-info'
 };
 
 const ACTIONS = new Set(['url', 'folder', 'resource', 'external-app']);
@@ -22,6 +23,20 @@ function toLauncherResult(raw) {
   const success = raw.success === true;
   const message = typeof raw.message === 'string' ? raw.message : undefined;
   return { success, message };
+}
+
+function toSystemMemoryInfo(raw) {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+
+  const total = Number(raw.total);
+  const free = Number(raw.free);
+  if (!Number.isFinite(total) || !Number.isFinite(free) || total <= 0 || free < 0) {
+    return null;
+  }
+
+  return { total, free };
 }
 
 async function invokeLauncher(type, target) {
@@ -58,7 +73,15 @@ const desktopLauncherApi = Object.freeze({
   openUrl: (target) => invokeLauncher('url', target),
   openFolder: (target) => invokeLauncher('folder', target),
   openResource: (target) => invokeLauncher('resource', target),
-  openExternalApp: (target) => invokeLauncher('external-app', target)
+  openExternalApp: (target) => invokeLauncher('external-app', target),
+  getSystemMemoryInfo: async () => {
+    try {
+      const response = await ipcRenderer.invoke(IPC_CHANNELS.launcherMemoryInfo);
+      return toSystemMemoryInfo(response);
+    } catch {
+      return null;
+    }
+  }
 });
 
 contextBridge.exposeInMainWorld('desktopLauncher', desktopLauncherApi);

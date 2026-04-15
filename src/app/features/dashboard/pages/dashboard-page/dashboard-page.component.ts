@@ -4,10 +4,24 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { SystemMemoryInfo } from '../../../../core/models/desktop-launcher-api.model';
 import { Shortcut, ShortcutOperationResult, ShortcutType } from '../../../../core/models/shortcut.model';
 import { ShortcutsService } from '../../../../core/services/shortcuts.service';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { ShortcutCardComponent } from '../../../../shared/components/shortcut-card/shortcut-card.component';
+
+const PROJECT_LAUNCH_SAFE_FREE_RATIO_THRESHOLD = 0.2;
+const NORMAL_LAUNCH_DELAY = 700;
+const SAFE_LAUNCH_DELAY = 2500;
+const PROJECT_LAUNCH_VISUAL_CLEAR_DELAY = 1800;
+
+interface ProjectLaunchVisualState {
+  active: boolean;
+  message: string;
+  progress: number;
+  total: number;
+  safeMode: boolean;
+}
 
 @Component({
   selector: 'app-dashboard-page',
@@ -71,12 +85,20 @@ export class DashboardPageComponent {
   readonly projectLaunchDraftSelectedIds = signal<string[]>([]);
   readonly projectLaunchConfigError = signal('');
   readonly isProjectLaunchRunning = signal(false);
+  readonly projectLaunchVisualState = signal<ProjectLaunchVisualState>({
+    active: false,
+    message: '',
+    progress: 0,
+    total: 0,
+    safeMode: false
+  });
   readonly actionFeedback = signal<{ type: 'idle' | 'success' | 'error'; message: string }>({
     type: 'idle',
     message: ''
   });
   private editingShortcutId: string | null = null;
   private feedbackTimeoutId: number | null = null;
+  private projectLaunchVisualTimeoutId: number | null = null;
   private readonly shortcutTypeValueValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     const typeValue = String(control.get('type')?.value ?? '').trim();
     const targetValue = String(control.get('value')?.value ?? '').trim();
@@ -539,18 +561,71 @@ export class DashboardPageComponent {
     }
 
     this.isProjectLaunchRunning.set(true);
+    this.setProjectLaunchVisualState({
+      active: true,
+      message: 'Preparando apertura del proyecto...',
+      progress: 0,
+      total: shortcutsToLaunch.length,
+      safeMode: false
+    });
+
+    const initialCadence = await this.resolveProjectLaunchCadence();
+    if (initialCadence.safeMode) {
+      this.setProjectLaunchVisualState({
+        active: true,
+        message: 'Memoria baja detectada, abriendo de forma segura...',
+        progress: 0,
+        total: shortcutsToLaunch.length,
+        safeMode: true
+      });
+    }
+
     let openedCount = 0;
 
     try {
-      for (const shortcut of shortcutsToLaunch) {
-        const result = await this.shortcutsService.openShortcut(shortcut);
-        if (result.success) {
-          openedCount += 1;
+      for (let index = 0; index < shortcutsToLaunch.length; index += 1) {
+        const shortcut = shortcutsToLaunch[index];
+        const cadence = await this.resolveProjectLaunchCadence();
+        const currentProgress = index + 1;
+        const progressMessage = cadence.safeMode
+          ? `Memoria baja detectada. Abriendo ${currentProgress} de ${shortcutsToLaunch.length} de forma segura...`
+          : `Abriendo ${currentProgress} de ${shortcutsToLaunch.length}...`;
+
+        this.setProjectLaunchVisualState({
+          active: true,
+          message: progressMessage,
+          progress: currentProgress,
+          total: shortcutsToLaunch.length,
+          safeMode: cadence.safeMode
+        });
+
+        try {
+          const result = await this.shortcutsService.openShortcut(shortcut);
+          if (result.success) {
+            openedCount += 1;
+          } else {
+            console.error('[project-launch] Fallo al abrir acceso:', shortcut, result.message ?? 'Error desconocido.');
+          }
+        } catch (error) {
+          console.error('[project-launch] Error inesperado al abrir acceso:', shortcut, error);
+        }
+
+        if (index < shortcutsToLaunch.length - 1) {
+          await this.sleep(cadence.delay);
         }
       }
     } finally {
       this.isProjectLaunchRunning.set(false);
     }
+
+    this.setProjectLaunchVisualState({
+      active: true,
+      message: 'Proyecto abierto',
+      progress: shortcutsToLaunch.length,
+      total: shortcutsToLaunch.length,
+      safeMode: false
+    });
+    this.scheduleProjectLaunchVisualClear();
 
     if (openedCount === shortcutsToLaunch.length) {
       this.setActionFeedback('success', `Proyecto abierto (${openedCount} accesos).`);
@@ -979,6 +1054,66 @@ export class DashboardPageComponent {
     this.cancelBulkCopyPanel();
     this.bulkCopyError.set('');
     this.bulkCopyTargetProjectId.set('');
+  }
+
+  private async resolveProjectLaunchCadence(): Promise<{ safeMode: boolean; delay: number }> {
+    const memoryInfo = await this.getSystemMemoryInfo();
+    if (!memoryInfo || memoryInfo.total <= 0) {
+      return {
+        safeMode: false,
+        delay: NORMAL_LAUNCH_DELAY
+      };
+    }
+
+    const freeRatio = memoryInfo.free / memoryInfo.total;
+    const safeMode = freeRatio < PROJECT_LAUNCH_SAFE_FREE_RATIO_THRESHOLD;
+
+    return {
+      safeMode,
+      delay: safeMode ? SAFE_LAUNCH_DELAY : NORMAL_LAUNCH_DELAY
+    };
+  }
+
+  private getSystemMemoryInfo(): Promise<SystemMemoryInfo | null> {
+    const desktopLauncher = window.desktopLauncher;
+    if (!desktopLauncher || typeof desktopLauncher.getSystemMemoryInfo !== 'function') {
+      return Promise.resolve(null);
+    }
+
+    return desktopLauncher.getSystemMemoryInfo();
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      window.setTimeout(() => resolve(), ms);
+    });
+  }
+
+  private setProjectLaunchVisualState(state: ProjectLaunchVisualState): void {
+    if (this.projectLaunchVisualTimeoutId !== null) {
+      window.clearTimeout(this.projectLaunchVisualTimeoutId);
+      this.projectLaunchVisualTimeoutId = null;
+    }
+
+    this.projectLaunchVisualState.set(state);
+  }
+
+  private scheduleProjectLaunchVisualClear(): void {
+    if (this.projectLaunchVisualTimeoutId !== null) {
+      window.clearTimeout(this.projectLaunchVisualTimeoutId);
+      this.projectLaunchVisualTimeoutId = null;
+    }
+
+    this.projectLaunchVisualTimeoutId = window.setTimeout(() => {
+      this.projectLaunchVisualState.set({
+        active: false,
+        message: '',
+        progress: 0,
+        total: 0,
+        safeMode: false
+      });
+      this.projectLaunchVisualTimeoutId = null;
+    }, PROJECT_LAUNCH_VISUAL_CLEAR_DELAY);
   }
 
   private setActionFeedback(type: 'success' | 'error', message: string): void {

@@ -12,7 +12,8 @@ const ICON_PATH = app.isPackaged
   : path.join(__dirname, 'assets', 'icon.ico');
 
 const IPC_CHANNELS = {
-  launcherOpen: 'launcher:open'
+  launcherOpen: 'launcher:open',
+  launcherMemoryInfo: 'launcher:memory-info'
 };
 
 const ALLOWED_EXTERNAL_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
@@ -177,6 +178,21 @@ async function handleLauncherOpen(request) {
   return { success: false, message: 'Tipo de apertura no soportado.' };
 }
 
+function readSystemMemoryInfo() {
+  try {
+    const memoryInfo = process.getSystemMemoryInfo();
+    const total = Number(memoryInfo?.total);
+    const free = Number(memoryInfo?.free);
+    if (!Number.isFinite(total) || !Number.isFinite(free) || total <= 0 || free < 0) {
+      return null;
+    }
+
+    return { total, free };
+  } catch {
+    return null;
+  }
+}
+
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: APP_TITLE,
@@ -246,6 +262,8 @@ app.whenReady().then(() => {
       return { success: false, message };
     }
   });
+
+  ipcMain.handle(IPC_CHANNELS.launcherMemoryInfo, () => readSystemMemoryInfo());
 
   createMainWindow();
 
