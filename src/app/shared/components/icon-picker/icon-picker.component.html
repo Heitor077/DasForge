@@ -1,0 +1,76 @@
+<section class="icon-picker" role="dialog" aria-label="Selector de iconos">
+  <header class="icon-picker__header">
+    <div>
+      <p class="icon-picker__eyebrow">ICONOS</p>
+      <h3>Elegir icono</h3>
+    </div>
+    <button type="button" class="icon-picker__close" (click)="onClose()" aria-label="Cerrar selector">Cerrar</button>
+  </header>
+
+  <label class="icon-picker__search">
+    <span>Buscar icono</span>
+    <input
+      type="search"
+      [value]="searchQuery()"
+      placeholder="Ej: github, gh, mail, folder"
+      (input)="setSearchQuery($any($event.target).value)"
+    />
+  </label>
+
+  <div class="icon-picker__grid" role="listbox" aria-label="Iconos disponibles">
+    @for (item of filteredIcons(); track trackById($index, item)) {
+      <button
+        type="button"
+        class="icon-picker__item"
+        [class.icon-picker__item--selected]="isSelected(item.id)"
+        [attr.aria-selected]="isSelected(item.id)"
+        (click)="onSelect(item.id)"
+      >
+        <span class="icon-picker__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            @for (shape of getDefinition(item.id).shapes; track $index) {
+              @switch (shape.kind) {
+                @case ('path') {
+                  <path
+                    [attr.d]="shape.d"
+                    [attr.fill]="shape.fill ? 'currentColor' : 'none'"
+                    [attr.stroke]="shape.fill ? 'none' : 'currentColor'"
+                  />
+                }
+                @case ('circle') {
+                  <circle
+                    [attr.cx]="shape.cx"
+                    [attr.cy]="shape.cy"
+                    [attr.r]="shape.r"
+                    [attr.fill]="shape.fill ? 'currentColor' : 'none'"
+                    [attr.stroke]="shape.fill ? 'none' : 'currentColor'"
+                  />
+                }
+                @case ('rect') {
+                  <rect
+                    [attr.x]="shape.x"
+                    [attr.y]="shape.y"
+                    [attr.width]="shape.width"
+                    [attr.height]="shape.height"
+                    [attr.rx]="shape.rx ?? 0"
+                    [attr.fill]="shape.fill ? 'currentColor' : 'none'"
+                    [attr.stroke]="shape.fill ? 'none' : 'currentColor'"
+                  />
+                }
+              }
+            }
+          </svg>
+        </span>
+
+        <span class="icon-picker__meta">
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.id }}</small>
+        </span>
+      </button>
+    }
+  </div>
+
+  @if (filteredIcons().length === 0) {
+    <p class="icon-picker__empty">Sin resultados para la búsqueda actual.</p>
+  }
+</section>

@@ -8,6 +8,7 @@ import { SystemMemoryInfo } from '../../../../core/models/desktop-launcher-api.m
 import { Shortcut, ShortcutOperationResult, ShortcutType } from '../../../../core/models/shortcut.model';
 import { ShortcutsService } from '../../../../core/services/shortcuts.service';
 import { ThemeService } from '../../../../core/services/theme.service';
+import { IconPickerComponent } from '../../../../shared/components/icon-picker/icon-picker.component';
 import { ShortcutCardComponent } from '../../../../shared/components/shortcut-card/shortcut-card.component';
 
 const PROJECT_LAUNCH_SAFE_FREE_RATIO_THRESHOLD = 0.2;
@@ -26,7 +27,7 @@ interface ProjectLaunchVisualState {
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [DragDropModule, ReactiveFormsModule, RouterLink, ShortcutCardComponent],
+  imports: [DragDropModule, ReactiveFormsModule, RouterLink, ShortcutCardComponent, IconPickerComponent],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css'
 })
@@ -60,6 +61,7 @@ export class DashboardPageComponent {
   readonly compactMode = computed(() => this.settings().layoutOptions?.compactMode ?? false);
 
   readonly isShortcutModalOpen = signal(false);
+  readonly isIconPickerOpen = signal(false);
   readonly isEditMode = signal(false);
   readonly isFocusMode = signal(false);
   readonly isFullscreen = signal(false);
@@ -118,7 +120,7 @@ export class DashboardPageComponent {
     name: ['', [Validators.required, Validators.maxLength(80)]],
     type: ['url' as ShortcutType, Validators.required],
     value: ['', [Validators.required, Validators.maxLength(300)]],
-    icon: ['', [Validators.maxLength(12)]],
+    icon: ['', [Validators.maxLength(24)]],
     color: ['', [Validators.maxLength(24)]],
     categoryId: ['']
   }, {
@@ -252,7 +254,21 @@ export class DashboardPageComponent {
 
   closeShortcutModal(): void {
     this.isShortcutModalOpen.set(false);
+    this.closeIconPicker();
     this.formError.set('');
+  }
+
+  toggleIconPicker(): void {
+    this.isIconPickerOpen.update((isOpen) => !isOpen);
+  }
+
+  closeIconPicker(): void {
+    this.isIconPickerOpen.set(false);
+  }
+
+  onIconPicked(iconId: string): void {
+    this.shortcutForm.controls.icon.setValue(iconId);
+    this.closeIconPicker();
   }
 
   saveShortcut(): void {

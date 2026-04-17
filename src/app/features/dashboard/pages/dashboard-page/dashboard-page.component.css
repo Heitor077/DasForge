@@ -434,6 +434,27 @@ h1 {
   color: var(--color-text-muted);
 }
 
+.shortcut-form__icon-field {
+  display: grid;
+  gap: 8px;
+}
+
+.shortcut-form__icon-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-form__icon-control input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.shortcut-form__icon-control .theme-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .shortcut-form__hint {
   font-size: 0.76rem;
   color: color-mix(in srgb, var(--color-text-muted) 88%, transparent);

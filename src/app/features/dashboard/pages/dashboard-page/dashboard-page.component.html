@@ -429,10 +429,22 @@
           <small class="shortcut-form__hint">{{ valueFieldMeta().hint }}</small>
         </label>
 
-        <label>
-          <span>Icono</span>
-          <input type="text" formControlName="icon" placeholder="Ej: github, youtube, folder" />
-        </label>
+        <div class="shortcut-form__icon-field">
+          <label>
+            <span>Icono</span>
+            <div class="shortcut-form__icon-control">
+              <input type="text" formControlName="icon" placeholder="Ej: github, youtube, folder" />
+              <button type="button" class="theme-button" (click)="toggleIconPicker()">Elegir</button>
+            </div>
+          </label>
+          @if (isIconPickerOpen()) {
+            <app-icon-picker
+              [selectedIcon]="shortcutForm.controls.icon.value || null"
+              (selectIcon)="onIconPicked($event)"
+              (close)="closeIconPicker()"
+            />
+          }
+        </div>
 
         <label>
           <span>Color</span>
