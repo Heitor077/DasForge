@@ -60,7 +60,6 @@ h1 {
 .settings-card h2 {
   margin: 0;
   font-size: 1.2rem;
-  letter-spacing: 0.01em;
 }
 
 .settings-card p {
@@ -110,7 +109,8 @@ h1 {
   align-items: center;
 }
 
-.pill-group {
+.pill-group,
+.variant-overflow-panel {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -122,27 +122,36 @@ h1 {
   gap: 10px;
 }
 
-.layout-option {
+.layout-option,
+.behavior-option {
   border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
   border-radius: 12px;
   background: color-mix(in srgb, var(--color-surface-soft) 62%, transparent);
   color: var(--color-text);
-  min-height: 86px;
   padding: 10px;
   display: grid;
-  gap: 8px;
   text-align: left;
   cursor: pointer;
-  transition: transform 150ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 220ms ease;
 }
 
-.layout-option:hover {
+.layout-option {
+  min-height: 86px;
+  gap: 8px;
+  transition: transform 150ms ease, border-color 180ms ease;
+}
+
+.layout-option:hover,
+.behavior-option:hover {
   transform: translateY(-1px);
   border-color: color-mix(in srgb, var(--color-interactive-border) 58%, var(--color-border));
 }
 
-.layout-option--active {
+.layout-option--active,
+.behavior-option--active {
   border-color: color-mix(in srgb, var(--color-interactive-border) 70%, var(--color-border));
+}
+
+.layout-option--active {
   background: color-mix(in srgb, var(--color-surface-soft) 48%, var(--color-interactive-glow) 14%);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-interactive-glow) 36%, transparent) inset;
 }
@@ -166,12 +175,11 @@ h1 {
 }
 
 .layout-option--auto .layout-option__cell:nth-child(4) {
-  opacity: 0.55;
+  opacity: .55;
 }
 
 .layout-option__meta {
   display: grid;
-  gap: 2px;
 }
 
 .layout-option__meta strong {
@@ -179,7 +187,8 @@ h1 {
   font-weight: 700;
 }
 
-.layout-option__meta small {
+.layout-option__meta small,
+.behavior-option small {
   font-size: 0.74rem;
   color: var(--color-text-muted);
 }
@@ -195,26 +204,12 @@ h1 {
 }
 
 .behavior-option {
-  border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--color-surface-soft) 62%, transparent);
-  color: var(--color-text);
   min-height: 72px;
-  padding: 10px;
-  display: grid;
   gap: 4px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 150ms ease, border-color 180ms ease, box-shadow 220ms ease;
-}
-
-.behavior-option:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--color-interactive-border) 58%, var(--color-border));
+  transition: transform 150ms ease, border-color 180ms ease;
 }
 
 .behavior-option--active {
-  border-color: color-mix(in srgb, var(--color-interactive-border) 70%, var(--color-border));
   background: color-mix(in srgb, var(--color-surface-soft) 46%, var(--color-interactive-glow) 13%);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-interactive-glow) 34%, transparent) inset;
 }
@@ -222,11 +217,6 @@ h1 {
 .behavior-option strong {
   font-size: 0.83rem;
   font-weight: 700;
-}
-
-.behavior-option small {
-  font-size: 0.74rem;
-  color: var(--color-text-muted);
 }
 
 .variant-selector {
@@ -242,13 +232,18 @@ h1 {
 }
 
 .variant-overflow-panel {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   border: 1px solid color-mix(in srgb, var(--color-border) 58%, transparent);
   border-radius: 12px;
   padding: 8px;
   background: color-mix(in srgb, var(--color-surface-soft) 58%, transparent);
+}
+
+.preset-option,
+.wallpaper-option,
+.custom-wallpaper-preview {
+  background-position: center;
+  background-size: cover;
+  background-color: var(--color-surface-soft);
 }
 
 .preset-grid {
@@ -263,9 +258,6 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 14px;
   min-height: 116px;
-  background-color: var(--color-surface-soft);
-  background-position: center;
-  background-size: cover;
   padding: 10px;
   color: #f2f7ff;
   text-align: left;
@@ -275,7 +267,7 @@ h1 {
   gap: 4px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 220ms ease, border-color 200ms ease;
+  transition: transform 180ms ease;
 }
 
 .preset-option::before {
@@ -294,7 +286,6 @@ h1 {
 .preset-option__label {
   font-size: 0.83rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
 }
 
 .preset-option__description {
@@ -324,9 +315,6 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   min-height: 72px;
-  background-color: var(--color-surface-soft);
-  background-position: center;
-  background-size: cover;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -348,10 +336,6 @@ h1 {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent) inset;
 }
 
-.range-control {
-  accent-color: var(--color-primary);
-}
-
 .custom-wallpaper {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -367,9 +351,6 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   min-height: 120px;
-  background-position: center;
-  background-size: cover;
-  background-color: var(--color-surface-soft);
 }
 
 .custom-wallpaper-caption {
@@ -399,33 +380,25 @@ h1 {
   background: color-mix(in srgb, var(--color-surface-soft) 78%, transparent);
 }
 
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text);
-}
-
+.switch,
 .import-actions {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.file-input {
-  display: none;
+.switch {
+  color: var(--color-text);
 }
 
-.pill:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+.file-input {
+  display: none;
 }
 
 .visual-json-modal__backdrop {
   position: fixed;
   inset: 0;
   background: rgba(7, 10, 16, 0.52);
-  backdrop-filter: blur(3px);
   z-index: 45;
 }
 

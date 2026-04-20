@@ -5,9 +5,8 @@
   border-radius: 18px;
   background: color-mix(in srgb, var(--color-surface) var(--app-surface-opacity), transparent);
   color: var(--color-text);
-  transition: transform 180ms ease, box-shadow 220ms ease, border-color 180ms ease, background-color 180ms ease;
+  transition: transform 180ms ease, box-shadow 220ms ease, border-color 180ms ease;
   overflow: hidden;
-  will-change: transform;
 }
 
 .shortcut-card:hover {
@@ -46,7 +45,7 @@
   padding: clamp(20px, 2.4vw, 28px) 16px;
   min-height: 170px;
   cursor: pointer;
-  transition: background-color 180ms ease, transform 180ms ease;
+  transition: background-color 180ms ease;
 }
 
 .shortcut-card__launch:hover {
@@ -73,7 +72,7 @@
   letter-spacing: 0.06em;
   background: color-mix(in srgb, var(--color-accent) 30%, transparent);
   color: var(--color-primary);
-  transition: transform 200ms ease, box-shadow 220ms ease, background-color 220ms ease;
+  transition: transform 200ms ease, box-shadow 220ms ease;
 }
 
 .shortcut-card__icon svg {
@@ -99,8 +98,13 @@
   gap: 3px;
 }
 
-.shortcut-card__title {
+.shortcut-card__title,
+.shortcut-card__meta,
+.shortcut-card__description {
   margin: 0;
+}
+
+.shortcut-card__title {
   font-size: 1.04rem;
   font-weight: 600;
   transition: color 180ms ease;
@@ -108,7 +112,6 @@
 
 .shortcut-card__meta,
 .shortcut-card__description {
-  margin: 0;
   color: var(--color-text-muted);
 }
 
@@ -124,7 +127,7 @@
   white-space: nowrap;
   max-width: 220px;
   opacity: 0.94;
-  transition: opacity 180ms ease, color 180ms ease;
+  transition: opacity 180ms ease;
 }
 
 .shortcut-card:hover .shortcut-card__title {
@@ -137,13 +140,7 @@
 
 .shortcut-card__options-toggle {
   backdrop-filter: blur(4px);
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    background-color 180ms ease,
-    box-shadow 220ms ease;
+  transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease, box-shadow 220ms ease;
 }
 
 .shortcut-card:hover .shortcut-card__options-toggle,
@@ -159,10 +156,6 @@
   border-radius: 4px;
   background: color-mix(in srgb, var(--color-accent) 30%, transparent);
   color: inherit;
-}
-
-.shortcut-card--selection-mode .shortcut-card__launch {
-  cursor: pointer;
 }
 
 .shortcut-card--multi-selected {

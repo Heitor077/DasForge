@@ -278,6 +278,13 @@ export class SettingsPageComponent {
   }
 
   getPresetPreview(preset: VisualPreset): string {
+    if (preset.config.wallpaperId === 'custom-image') {
+      const customSource = (preset.config.customWallpaperSource ?? '').trim();
+      if (customSource) {
+        return customSource;
+      }
+    }
+
     return this.wallpaperValueById()[preset.config.wallpaperId] ?? 'none';
   }
 
