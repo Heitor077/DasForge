@@ -17,6 +17,19 @@
     />
   </label>
 
+  <div class="icon-picker__categories" aria-label="Categorías de iconos">
+    @for (category of categoryChips; track category.id) {
+      <button
+        type="button"
+        class="icon-picker__category-chip"
+        [class.icon-picker__category-chip--active]="selectedCategory() === category.id"
+        (click)="setCategory(category.id)"
+      >
+        {{ category.label }}
+      </button>
+    }
+  </div>
+
   <div class="icon-picker__grid" role="listbox" aria-label="Iconos disponibles">
     @for (item of filteredIcons(); track trackById($index, item)) {
       <button

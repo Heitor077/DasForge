@@ -19,6 +19,15 @@ import { StorageService } from './storage.service';
 
 const SETTINGS_STORAGE_KEY = 'dashboard.settings';
 const CUSTOM_PRESETS_STORAGE_KEY = 'dashboard.custom-presets';
+const STRUCTURAL_THEME_VARIABLES = new Set([
+  '--color-bg',
+  '--color-surface',
+  '--color-surface-soft',
+  '--color-border',
+  '--color-text',
+  '--color-text-muted',
+  '--shadow-elevated'
+]);
 
 interface ThemeImportValidationResult {
   success: boolean;
@@ -192,8 +201,7 @@ export class ThemeService {
     const requestedVariant = preset.config.themeVariantId.trim();
     const variant =
       this.findGlobalVariantById(requestedVariant) ??
-      theme.variants.find((item) => item.id === theme.defaultVariantId) ??
-      theme.variants[0];
+      this.findDefaultVariantForTheme(theme);
 
     const currentPreferences = this.settingsSignal().preferences ?? DEFAULT_DASHBOARD_PREFERENCES;
     const normalizedCustomWallpaperSource = this.normalizeCustomWallpaperSource(
@@ -473,8 +481,7 @@ export class ThemeService {
     const theme = this.activeTheme();
     const variant =
       this.findGlobalVariantById(this.activeVariantId()) ??
-      theme.variants.find((item) => item.id === theme.defaultVariantId) ??
-      theme.variants[0];
+      this.findDefaultVariantForTheme(theme);
     const wallpaper = this.resolveActiveWallpaper();
     const userBlur = this.settingsSignal().preferences?.wallpaperBlurPx ?? DEFAULT_DASHBOARD_PREFERENCES.wallpaperBlurPx;
     const totalBlur = Math.max(0, (wallpaper.blurPx ?? 0) + userBlur);
@@ -483,7 +490,7 @@ export class ThemeService {
     const overlayOpacity = overlayOpacityOverride >= 0 ? overlayOpacityOverride : wallpaper.overlay.opacity;
     const surfaceOpacity = this.normalizeSurfaceOpacity(this.settingsSignal().preferences?.surfaceOpacity);
 
-    const mergedVariables = { ...theme.baseVariables, ...variant.variables };
+    const mergedVariables = { ...theme.baseVariables, ...this.getAllowedVariantVariables(variant) };
     Object.entries(mergedVariables).forEach(([property, value]) => {
       rootElement.style.setProperty(property, value);
     });
@@ -514,8 +521,7 @@ export class ThemeService {
     const theme = this.findThemeById(settings.themeId) ?? DEFAULT_THEMES[0];
     const variant =
       this.findGlobalVariantById(settings.themeVariantId) ??
-      theme.variants.find((item) => item.id === theme.defaultVariantId) ??
-      theme.variants[0];
+      this.findDefaultVariantForTheme(theme);
     const wallpaper = this.findWallpaperById(settings.wallpaperId) ?? DEFAULT_WALLPAPERS[0];
 
     return {
@@ -564,6 +570,25 @@ export class ThemeService {
     }
 
     return undefined;
+  }
+
+  private findVariantByIdForTheme(theme: ThemeDefinition, variantId: string): ThemeVariant | undefined {
+    const normalizedVariantId = variantId.trim();
+    if (!normalizedVariantId) {
+      return undefined;
+    }
+
+    return theme.variants.find((variant) => variant.id === normalizedVariantId);
+  }
+
+  private findDefaultVariantForTheme(theme: ThemeDefinition): ThemeVariant {
+    return theme.variants.find((variant) => variant.id === theme.defaultVariantId) ?? theme.variants[0];
+  }
+
+  private getAllowedVariantVariables(variant: ThemeVariant): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(variant.variables).filter(([variableName]) => !STRUCTURAL_THEME_VARIABLES.has(variableName))
+    );
   }
 
   private findWallpaperById(wallpaperId: string): Wallpaper | undefined {

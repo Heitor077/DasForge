@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, computed, inject, signal } from
 
 import {
   ShortcutIconCatalogItem,
+  ShortcutIconCategoryId,
   ShortcutIconDefinition,
   ShortcutIconId,
   ShortcutIconService
@@ -17,6 +18,17 @@ export class IconPickerComponent {
   private readonly shortcutIconService = inject(ShortcutIconService);
   private readonly catalog = this.shortcutIconService.getCatalog();
   readonly searchQuery = signal('');
+  readonly selectedCategory = signal<ShortcutIconCategoryId>('all');
+  readonly categoryChips: Array<{ id: ShortcutIconCategoryId; label: string }> = [
+    { id: 'all', label: 'Todas' },
+    { id: 'general', label: 'General' },
+    { id: 'dev', label: 'Dev' },
+    { id: 'comunicacion', label: 'Comunicación' },
+    { id: 'media', label: 'Media' },
+    { id: 'gaming', label: 'Gaming' },
+    { id: 'web', label: 'Web' },
+    { id: 'utilidades', label: 'Utilidades' }
+  ];
 
   @Input() selectedIcon: string | null = null;
 
@@ -24,16 +36,22 @@ export class IconPickerComponent {
   @Output() close = new EventEmitter<void>();
 
   readonly filteredIcons = computed(() => {
+    const selectedCategory = this.selectedCategory();
     const query = this.normalize(this.searchQuery());
+    const categoryFiltered =
+      selectedCategory === 'all' ? this.catalog : this.catalog.filter((item) => item.category === selectedCategory);
     if (!query) {
-      return this.catalog;
+      return categoryFiltered;
     }
-
-    return this.catalog.filter((item) => this.toSearchableText(item).includes(query));
+    return categoryFiltered.filter((item) => this.toSearchableText(item).includes(query));
   });
 
   setSearchQuery(value: string): void {
     this.searchQuery.set(value);
+  }
+
+  setCategory(categoryId: ShortcutIconCategoryId): void {
+    this.selectedCategory.set(categoryId);
   }
 
   getDefinition(iconId: ShortcutIconId): ShortcutIconDefinition {

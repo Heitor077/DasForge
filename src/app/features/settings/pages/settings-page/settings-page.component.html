@@ -332,6 +332,7 @@
         <div class="import-actions">
           <button type="button" class="pill" (click)="exportConfiguration()">Descargar backup JSON</button>
           <button type="button" class="pill" (click)="downloadImportExample()">Descargar ejemplo</button>
+          <button type="button" class="pill" (click)="openAppliedVisualJson()">Mostrar tema aplicado</button>
         </div>
       </div>
 
@@ -384,6 +385,20 @@
       </div>
     </article>
   </div>
+
+  @if (isVisualJsonOpen()) {
+    <div class="visual-json-modal__backdrop" (click)="closeAppliedVisualJson()"></div>
+    <section class="visual-json-modal" role="dialog" aria-modal="true" aria-label="Tema aplicado en JSON">
+      <header class="visual-json-modal__header">
+        <h3>Tema aplicado (JSON)</h3>
+      </header>
+      <pre class="visual-json-modal__content">{{ appliedVisualJson() }}</pre>
+      <div class="visual-json-modal__actions">
+        <button type="button" class="pill" (click)="copyAppliedVisualJson()">Copiar JSON</button>
+        <button type="button" class="pill" (click)="closeAppliedVisualJson()">Cerrar</button>
+      </div>
+    </section>
+  }
 </section>
 
 

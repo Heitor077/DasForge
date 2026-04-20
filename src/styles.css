@@ -549,8 +549,7 @@ div {
   background: color-mix(in srgb, #f2ba49 30%, rgba(8, 10, 16, 0.72));
 }
 
-.shortcut-card__options-toggle,
-.shortcut-card__quick-edit {
+.shortcut-card__options-toggle {
   position: absolute;
   top: 8px;
   z-index: 3;
@@ -574,29 +573,19 @@ div {
   font-size: 1.02rem;
 }
 
-.shortcut-card__quick-edit {
-  right: 42px;
-  font-size: 0.93rem;
-}
-
 .shortcut-card:hover .shortcut-card__options-toggle,
 .shortcut-card:focus-within .shortcut-card__options-toggle,
-.shortcut-card__options-toggle:focus-visible,
-.shortcut-card:hover .shortcut-card__quick-edit,
-.shortcut-card:focus-within .shortcut-card__quick-edit,
-.shortcut-card__quick-edit:focus-visible {
+.shortcut-card__options-toggle:focus-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.shortcut-card__options-toggle:hover,
-.shortcut-card__quick-edit:hover {
+.shortcut-card__options-toggle:hover {
   border-color: var(--color-interactive-border);
   color: var(--color-text);
 }
 
 .shortcut-card__options-toggle:focus-visible,
-.shortcut-card__quick-edit:focus-visible,
 .shortcut-card__option:focus-visible {
   border-color: color-mix(in srgb, var(--color-interactive-border) 64%, var(--color-border));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-interactive-glow) 28%, transparent);

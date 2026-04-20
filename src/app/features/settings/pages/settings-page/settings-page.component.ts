@@ -18,7 +18,7 @@ import { ThemeService } from '../../../../core/services/theme.service';
 })
 export class SettingsPageComponent {
   private static readonly MAX_CUSTOM_WALLPAPER_BYTES = 8 * 1024 * 1024;
-  private static readonly VISIBLE_VARIANTS_LIMIT = 8;
+  private static readonly VISIBLE_VARIANTS_LIMIT = 6;
   private static readonly AUTO_COLUMNS_VALUE = 0;
 
   readonly themeService = inject(ThemeService);
@@ -95,6 +95,7 @@ export class SettingsPageComponent {
   readonly launcherCapabilities = this.launcherService.capabilities;
   readonly isImporting = signal(false);
   readonly isImportFormatHelpOpen = signal(false);
+  readonly isVisualJsonOpen = signal(false);
   readonly selectedUserPresetId = signal('');
   readonly isConfirmDeleteOpen = signal(false);
   readonly highlightedPresetId = signal('');
@@ -159,6 +160,25 @@ export class SettingsPageComponent {
       state: this.launcherCapabilities.canOpenExternalApp ? 'OK' : 'Limitado'
     }
   ]);
+  readonly appliedVisualJson = computed(() => {
+    const snapshot = this.themeService.getSnapshot();
+    const preferences = snapshot.settings.preferences;
+    const visualData = {
+      themeId: snapshot.settings.themeId,
+      themeVariantId: snapshot.settings.themeVariantId,
+      wallpaperId: snapshot.settings.wallpaperId,
+      preferences: {
+        activePresetId: preferences?.activePresetId ?? '',
+        visualDensity: preferences?.visualDensity ?? 'comfortable',
+        wallpaperBlurPx: preferences?.wallpaperBlurPx ?? 0,
+        surfaceOpacity: preferences?.surfaceOpacity ?? 0.9,
+        wallpaperOverlayColor: preferences?.wallpaperOverlayColor ?? '',
+        wallpaperOverlayOpacity: preferences?.wallpaperOverlayOpacity ?? -1,
+        customWallpaperSource: preferences?.customWallpaperSource ?? ''
+      }
+    };
+    return JSON.stringify(visualData, null, 2);
+  });
 
   setColumns(columns: number): void {
     this.themeService.setLayoutOptions({ columns });
@@ -375,6 +395,23 @@ export class SettingsPageComponent {
     this.notificationService.info('Ejemplo JSON descargado.');
   }
 
+  openAppliedVisualJson(): void {
+    this.isVisualJsonOpen.set(true);
+  }
+
+  closeAppliedVisualJson(): void {
+    this.isVisualJsonOpen.set(false);
+  }
+
+  async copyAppliedVisualJson(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.appliedVisualJson());
+      this.notificationService.success('JSON visual copiado.');
+    } catch {
+      this.notificationService.error('No se pudo copiar el JSON visual.');
+    }
+  }
+
   toggleImportFormatHelp(): void {
     this.isImportFormatHelpOpen.update((value) => !value);
   }
@@ -389,7 +426,9 @@ export class SettingsPageComponent {
     this.isImporting.set(true);
     try {
       const content = await file.text();
-      const result = this.launcherConfigService.importFromJson(content);
+      const result = this.isVisualOnlyImport(content)
+        ? this.launcherConfigService.importVisualFromJson(content)
+        : this.launcherConfigService.importFromJson(content);
       if (result.success) {
         this.notificationService.success('Configuración importada y aplicada correctamente.');
       } else {
@@ -400,6 +439,22 @@ export class SettingsPageComponent {
     } finally {
       input.value = '';
       this.isImporting.set(false);
+    }
+  }
+
+  private isVisualOnlyImport(rawJson: string): boolean {
+    try {
+      const parsed = JSON.parse(rawJson) as {
+        data?: { shortcuts?: unknown; categories?: unknown };
+      };
+      const shortcuts = parsed?.data?.shortcuts;
+      const categories = parsed?.data?.categories;
+      const hasShortcuts = Array.isArray(shortcuts) && shortcuts.length > 0;
+      const hasCategories = Array.isArray(categories) && categories.length > 0;
+
+      return !hasShortcuts && !hasCategories;
+    } catch {
+      return false;
     }
   }
 

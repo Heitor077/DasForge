@@ -9,6 +9,7 @@ export interface ShortcutItem {
   includeInProjectLaunch?: boolean;
   icon?: string;
   color?: string;
+  iconColor?: string;
   categoryId?: string;
 }
 
@@ -23,6 +24,7 @@ export interface ShortcutUpsertInput {
   includeInProjectLaunch?: boolean;
   icon?: string;
   color?: string;
+  iconColor?: string;
   categoryId?: string;
 }
 

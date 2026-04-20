@@ -168,7 +168,8 @@ h1 {
 
 
 .project-inline-form,
-.project-inline-confirm {
+.project-inline-confirm,
+.copy-inline-panel {
   margin-top: 10px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
@@ -182,18 +183,33 @@ h1 {
   max-width: 480px;
 }
 
-.project-inline-form__input {
+.project-inline-form .project-inline-form__input {
   width: 100%;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-text);
+  border-radius: 10px;
+  height: 38px;
+  padding: 0 12px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
 
-.project-inline-form__error {
-  margin: 0;
-  color: #e36f6f;
-  font-size: 0.8rem;
+.project-inline-form .project-inline-form__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.project-inline-form .project-inline-form__input:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 44%, var(--color-border));
+}
+
+.project-inline-form .project-inline-form__input:focus-visible {
+  border-color: color-mix(in srgb, var(--color-interactive-border) 68%, var(--color-border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-interactive-glow) 32%, transparent);
 }
 
 .project-inline-form__actions,
-.project-inline-confirm__actions {
+.project-inline-confirm__actions,
+.copy-inline-panel__actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -205,11 +221,6 @@ h1 {
 }
 
 .copy-inline-panel {
-  margin-top: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 10px;
-  background: color-mix(in srgb, var(--color-surface-soft) 88%, transparent);
   display: grid;
   gap: 8px;
   max-width: 520px;
@@ -220,22 +231,49 @@ h1 {
   font-size: 0.84rem;
 }
 
-
-.copy-inline-panel__label {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
+.copy-inline-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
+.copy-inline-panel__select {
+  min-width: 220px;
+  flex: 1 1 220px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  color: var(--color-text);
+  height: 34px;
+  padding: 0 32px 0 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-text-muted) 50%),
+    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+section.copy-inline-panel[aria-label="Copiar acceso a otro proyecto"] .project-selector__label,
+section.copy-inline-panel[aria-label="Copiar accesos selecciónados a otro proyecto"] .project-selector__label,
+section.copy-inline-panel[aria-label="Copiar accesos seleccionados a otro proyecto"] .project-selector__label {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.project-inline-form__error,
 .copy-inline-panel__error {
   margin: 0;
   color: #e36f6f;
   font-size: 0.8rem;
-}
-
-.copy-inline-panel__actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .dashboard__feedback {

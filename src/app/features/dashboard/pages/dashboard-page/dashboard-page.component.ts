@@ -76,6 +76,7 @@ export class DashboardPageComponent {
   readonly shortcutToCopy = signal<Shortcut | null>(null);
   readonly copyTargetProjectId = signal('');
   readonly copyShortcutError = signal('');
+  readonly isCopyDropdownOpen = signal(false);
   readonly isMultiSelectMode = signal(false);
   readonly selectedShortcutIds = signal<string[]>([]);
   readonly isBulkCopyPanelOpen = signal(false);
@@ -122,6 +123,7 @@ export class DashboardPageComponent {
     value: ['', [Validators.required, Validators.maxLength(300)]],
     icon: ['', [Validators.maxLength(24)]],
     color: ['', [Validators.maxLength(24)]],
+    iconColor: ['', [Validators.maxLength(24)]],
     categoryId: ['']
   }, {
     validators: [this.shortcutTypeValueValidator]
@@ -232,6 +234,7 @@ export class DashboardPageComponent {
       value: '',
       icon: '',
       color: '',
+      iconColor: '',
       categoryId: this.selectedCategoryId() === DashboardPageComponent.ALL_CATEGORY_ID ? '' : this.selectedCategoryId()
     });
     this.isShortcutModalOpen.set(true);
@@ -247,6 +250,7 @@ export class DashboardPageComponent {
       value: shortcut.value,
       icon: shortcut.icon ?? '',
       color: shortcut.color ?? '',
+      iconColor: shortcut.iconColor ?? '',
       categoryId: shortcut.categoryId ?? ''
     });
     this.isShortcutModalOpen.set(true);
@@ -286,6 +290,7 @@ export class DashboardPageComponent {
       value: formValue.value,
       icon: formValue.icon,
       color: formValue.color,
+      iconColor: formValue.iconColor,
       categoryId: formValue.categoryId
     };
 
@@ -487,6 +492,7 @@ export class DashboardPageComponent {
     this.shortcutToCopy.set(shortcut);
     this.copyTargetProjectId.set(destinationProjects[0].id);
     this.copyShortcutError.set('');
+    this.isCopyDropdownOpen.set(false);
   }
 
   setCopyTargetProjectId(projectId: string): void {
@@ -496,10 +502,33 @@ export class DashboardPageComponent {
     }
   }
 
+  toggleCopyDropdown(): void {
+    if (!this.shortcutToCopy()) {
+      return;
+    }
+
+    if (!this.isCopyDropdownOpen()) {
+      this.closeProjectDropdown();
+      this.closeProjectLaunchDropdown();
+      this.closeBulkCopyDropdown();
+    }
+    this.isCopyDropdownOpen.update((value) => !value);
+  }
+
+  closeCopyDropdown(): void {
+    this.isCopyDropdownOpen.set(false);
+  }
+
+  selectCopyDestination(projectId: string): void {
+    this.setCopyTargetProjectId(projectId);
+    this.closeCopyDropdown();
+  }
+
   cancelCopyShortcutPanel(): void {
     this.shortcutToCopy.set(null);
     this.copyTargetProjectId.set('');
     this.copyShortcutError.set('');
+    this.isCopyDropdownOpen.set(false);
   }
 
   toggleMultiSelectMode(): void {
@@ -886,6 +915,12 @@ export class DashboardPageComponent {
       return;
     }
 
+    if (event.key === 'Escape' && this.isCopyDropdownOpen()) {
+      event.preventDefault();
+      this.closeCopyDropdown();
+      return;
+    }
+
     if (event.key === 'Escape' && this.isBulkCopyDropdownOpen()) {
       event.preventDefault();
       this.closeBulkCopyDropdown();
@@ -956,6 +991,9 @@ export class DashboardPageComponent {
       if (this.isProjectLaunchDropdownOpen()) {
         this.closeProjectLaunchDropdown();
       }
+      if (this.isCopyDropdownOpen()) {
+        this.closeCopyDropdown();
+      }
       if (this.isBulkCopyDropdownOpen()) {
         this.closeBulkCopyDropdown();
       }
@@ -970,9 +1008,23 @@ export class DashboardPageComponent {
       this.closeProjectLaunchDropdown();
     }
 
+    if (this.isCopyDropdownOpen() && !target.closest('[data-copy-dropdown]')) {
+      this.closeCopyDropdown();
+    }
+
     if (this.isBulkCopyDropdownOpen() && !target.closest('[data-bulk-copy-dropdown]')) {
       this.closeBulkCopyDropdown();
     }
+  }
+
+  getCopyDestinationName(): string {
+    const selectedId = this.copyTargetProjectId().trim();
+    if (!selectedId) {
+      return 'Seleccionar proyecto';
+    }
+
+    const selected = this.copyDestinationProjects().find((project) => project.id === selectedId);
+    return selected?.name ?? 'Seleccionar proyecto';
   }
 
   getBulkCopyDestinationName(): string {

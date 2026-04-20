@@ -57,6 +57,37 @@
   padding: 0.5rem 0.65rem;
 }
 
+.icon-picker__categories {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.icon-picker__category-chip {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.74rem;
+  line-height: 1;
+  padding: 0.36rem 0.62rem;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
+}
+
+.icon-picker__category-chip:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  color: var(--color-text);
+}
+
+.icon-picker__category-chip--active {
+  border-color: color-mix(in srgb, var(--color-primary) 58%, var(--color-border));
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-primary) 20%, var(--color-surface-soft));
+}
+
 .icon-picker__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));

@@ -80,6 +80,33 @@ export class LauncherConfigService {
     return { success: true };
   }
 
+  importVisualFromJson(rawJson: string): LauncherConfigImportResult {
+    const parsed = this.parseVisualRawJson(rawJson);
+    if (!parsed.success || !parsed.payload) {
+      return parsed;
+    }
+
+    const visualValidation = this.themeService.validateImportedConfiguration({
+      settings: parsed.payload.settings,
+      visualState: parsed.payload.visualState,
+      customPresets: parsed.payload.customPresets
+    });
+    if (!visualValidation.success) {
+      return {
+        success: false,
+        error: visualValidation.error ?? 'La configuración visual no es valida.'
+      };
+    }
+
+    this.themeService.applyImportedConfiguration({
+      settings: parsed.payload.settings,
+      visualState: parsed.payload.visualState,
+      customPresets: parsed.payload.customPresets
+    });
+
+    return { success: true };
+  }
+
   private parseRawJson(rawJson: string): { success: boolean; payload?: LauncherConfigExportV1; error?: string } {
     let parsed: unknown;
     try {
@@ -153,6 +180,78 @@ export class LauncherConfigService {
           },
           customPresets: (customPresets ?? []) as VisualPreset[]
         }
+      }
+    };
+  }
+
+  private parseVisualRawJson(rawJson: string): {
+    success: boolean;
+    payload?: {
+      settings: DashboardSettings;
+      visualState: { themeId: string; wallpaperId: string; presetId: string };
+      customPresets: VisualPreset[];
+    };
+    error?: string;
+  } {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(rawJson);
+    } catch {
+      return { success: false, error: 'El archivo no contiene JSON válido.' };
+    }
+
+    if (!parsed || typeof parsed !== 'object') {
+      return { success: false, error: 'El formato del archivo no es válido.' };
+    }
+
+    const source = parsed as Record<string, unknown>;
+    const version = source['version'];
+    const app = source['app'];
+    const data = source['data'];
+    if (version !== 1 || app !== APP_ID) {
+      return { success: false, error: 'El archivo no corresponde a una exportacion compatible.' };
+    }
+
+    if (!data || typeof data !== 'object') {
+      return { success: false, error: 'Falta el bloque data en el archivo.' };
+    }
+
+    const rawData = data as Record<string, unknown>;
+    const settings = rawData['settings'];
+    const visualState = rawData['visualState'];
+    const customPresets = rawData['customPresets'];
+
+    if (!this.isSettingsShape(settings)) {
+      return { success: false, error: 'El bloque de settings es inválido.' };
+    }
+
+    if (visualState !== undefined && !this.isVisualStateShape(visualState)) {
+      return { success: false, error: 'El bloque visualState es inválido.' };
+    }
+
+    if (customPresets !== undefined && !Array.isArray(customPresets)) {
+      return { success: false, error: 'El bloque customPresets es inválido.' };
+    }
+
+    const visualStateSource =
+      visualState && typeof visualState === 'object'
+        ? (visualState as { themeId?: string; wallpaperId?: string; presetId?: string })
+        : {};
+    const activePresetFromSettings =
+      settings.preferences && typeof settings.preferences.activePresetId === 'string'
+        ? settings.preferences.activePresetId
+        : '';
+
+    return {
+      success: true,
+      payload: {
+        settings,
+        visualState: {
+          themeId: visualStateSource.themeId?.trim() || settings.themeId,
+          wallpaperId: visualStateSource.wallpaperId?.trim() || settings.wallpaperId,
+          presetId: visualStateSource.presetId?.trim() || activePresetFromSettings
+        },
+        customPresets: (customPresets ?? []) as VisualPreset[]
       }
     };
   }

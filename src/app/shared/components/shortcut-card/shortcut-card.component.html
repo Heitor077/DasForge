@@ -11,10 +11,6 @@
     </span>
   }
 
-  <button type="button" class="shortcut-card__quick-edit" (click)="onQuickEdit($event)" aria-label="Editar acceso">
-    E
-  </button>
-
   <button type="button" class="shortcut-card__options-toggle" (click)="toggleOptions($event)" aria-label="Opciones">
     ...
   </button>
@@ -39,7 +35,11 @@
       <span class="shortcut-card__favorite-badge" aria-hidden="true">*</span>
     }
 
-    <div class="shortcut-card__icon" [style.background-color]="shortcut.color || ''">
+    <div
+      class="shortcut-card__icon"
+      [style.background-color]="shortcut.color || ''"
+      [style.color]="shortcut.iconColor || ''"
+    >
       @if (iconView.mode === 'svg') {
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           @for (shape of iconView.definition.shapes; track $index) {

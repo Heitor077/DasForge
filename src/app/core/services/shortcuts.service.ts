@@ -69,6 +69,7 @@ export class ShortcutsService {
       includeInProjectLaunch: Boolean(input.includeInProjectLaunch),
       icon: input.icon?.trim() || undefined,
       color: input.color?.trim() || undefined,
+      iconColor: input.iconColor?.trim() || undefined,
       categoryId: input.categoryId?.trim() || undefined
     };
 
@@ -107,6 +108,7 @@ export class ShortcutsService {
           includeInProjectLaunch: input.includeInProjectLaunch ?? shortcut.includeInProjectLaunch ?? false,
           icon: input.icon?.trim() || undefined,
           color: input.color?.trim() || undefined,
+          iconColor: input.iconColor?.trim() || undefined,
           categoryId: input.categoryId?.trim() || undefined
         };
         return updatedShortcut;
@@ -218,6 +220,7 @@ export class ShortcutsService {
       includeInProjectLaunch: sourceShortcut.includeInProjectLaunch,
       icon: sourceShortcut.icon,
       color: sourceShortcut.color,
+      iconColor: sourceShortcut.iconColor,
       categoryId: sourceShortcut.categoryId
     };
 
@@ -277,6 +280,7 @@ export class ShortcutsService {
         includeInProjectLaunch: sourceShortcut.includeInProjectLaunch,
         icon: sourceShortcut.icon,
         color: sourceShortcut.color,
+        iconColor: sourceShortcut.iconColor,
         categoryId: sourceShortcut.categoryId
       });
     });
@@ -344,11 +348,6 @@ export class ShortcutsService {
     const projects = this.projectsSignal();
 
     if (projects.length === 0) {
-      const fallbackProject = this.createGeneralProject([...this.shortcutsSignal()]);
-      this.projectsSignal.set([fallbackProject]);
-      this.activeProjectIdSignal.set(fallbackProject.id);
-      this.shortcutsSignal.set([...fallbackProject.shortcuts]);
-      this.persistAppState();
       return;
     }
 
@@ -792,6 +791,7 @@ export class ShortcutsService {
     const id = typeof source['id'] === 'string' && source['id'].trim() ? source['id'] : this.createId();
     const icon = typeof source['icon'] === 'string' ? source['icon'].trim() : '';
     const color = typeof source['color'] === 'string' ? source['color'].trim() : '';
+    const iconColor = typeof source['iconColor'] === 'string' ? source['iconColor'].trim() : '';
     const categoryId = typeof source['categoryId'] === 'string' ? source['categoryId'].trim() : '';
     const isFavorite = typeof source['isFavorite'] === 'boolean' ? source['isFavorite'] : false;
     const includeInProjectLaunch =
@@ -807,6 +807,7 @@ export class ShortcutsService {
       includeInProjectLaunch,
       icon: icon || undefined,
       color: color || undefined,
+      iconColor: iconColor || undefined,
       categoryId: normalizedCategoryId || undefined
     };
   }

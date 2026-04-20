@@ -60,12 +60,6 @@ export class ShortcutCardComponent implements OnChanges {
     this.isOptionsOpen = !this.isOptionsOpen;
   }
 
-  onQuickEdit(event: Event): void {
-    event.stopPropagation();
-    this.isOptionsOpen = false;
-    this.edit.emit(this.shortcut);
-  }
-
   onEdit(event: Event): void {
     event.stopPropagation();
     this.isOptionsOpen = false;

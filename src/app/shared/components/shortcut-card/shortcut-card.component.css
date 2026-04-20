@@ -135,7 +135,6 @@
   opacity: 1;
 }
 
-.shortcut-card__quick-edit,
 .shortcut-card__options-toggle {
   backdrop-filter: blur(4px);
   transition:
@@ -147,14 +146,11 @@
     box-shadow 220ms ease;
 }
 
-.shortcut-card:hover .shortcut-card__quick-edit,
 .shortcut-card:hover .shortcut-card__options-toggle,
-.shortcut-card:focus-within .shortcut-card__quick-edit,
 .shortcut-card:focus-within .shortcut-card__options-toggle {
   background: color-mix(in srgb, var(--color-surface-soft) 74%, transparent);
 }
 
-.shortcut-card__quick-edit:hover,
 .shortcut-card__options-toggle:hover {
   box-shadow: 0 6px 14px color-mix(in srgb, var(--color-interactive-glow) 24%, transparent);
 }

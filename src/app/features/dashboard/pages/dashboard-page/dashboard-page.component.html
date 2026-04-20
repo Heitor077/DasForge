@@ -211,17 +211,40 @@
     @if (shortcutToCopy()) {
       <section class="copy-inline-panel" aria-label="Copiar acceso a otro proyecto">
         <p class="copy-inline-panel__title">Copiar acceso: "{{ shortcutToCopy()?.name }}"</p>
-        <label class="copy-inline-panel__label" for="copyDestinationProject">Proyecto destino</label>
-        <select
-          id="copyDestinationProject"
-          class="copy-inline-panel__select"
-          [value]="copyTargetProjectId()"
-          (change)="setCopyTargetProjectId($any($event.target).value)"
-        >
-          @for (project of copyDestinationProjects(); track project.id) {
-            <option [value]="project.id">{{ project.name }}</option>
-          }
-        </select>
+        <div class="copy-inline-panel__row">
+          <label class="project-selector__label" for="copyDestinationProject">Proyecto destino</label>
+
+          <div class="project-dropdown" data-copy-dropdown>
+            <button
+              id="copyDestinationProject"
+              type="button"
+              class="project-dropdown__trigger"
+              [class.project-dropdown__trigger--open]="isCopyDropdownOpen()"
+              [attr.aria-expanded]="isCopyDropdownOpen()"
+              aria-haspopup="listbox"
+              (click)="toggleCopyDropdown()"
+            >
+              <span>{{ getCopyDestinationName() }}</span>
+              <span class="project-dropdown__caret" aria-hidden="true">▾</span>
+            </button>
+
+            @if (isCopyDropdownOpen()) {
+              <div class="project-dropdown__menu" role="listbox" aria-label="Proyectos destino para copia">
+                @for (project of copyDestinationProjects(); track project.id) {
+                  <button
+                    type="button"
+                    class="project-dropdown__option"
+                    [class.project-dropdown__option--active]="project.id === copyTargetProjectId()"
+                    [attr.aria-selected]="project.id === copyTargetProjectId()"
+                    (click)="selectCopyDestination(project.id)"
+                  >
+                    {{ project.name }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
         @if (copyShortcutError()) {
           <p class="copy-inline-panel__error">{{ copyShortcutError() }}</p>
         }
@@ -237,7 +260,7 @@
     @if (isBulkCopyPanelOpen()) {
       <section class="copy-inline-panel" aria-label="Copiar accesos selecciónados a otro proyecto">
         <p class="copy-inline-panel__title">Copiar {{ selectedShortcutsCount() }} acceso(s) selecciónados</p>
-        <label class="copy-inline-panel__label" for="bulkCopyDestinationProject">Proyecto destino</label>
+        <label class="project-selector__label" for="bulkCopyDestinationProject">Proyecto destino</label>
 
         <div class="project-dropdown" data-bulk-copy-dropdown>
           <button
@@ -350,7 +373,11 @@
         <div class="dashboard__grid-item" cdkDrag draggable="false">
           <ng-template cdkDragPreview>
             <article class="shortcut-drag-preview" aria-hidden="true">
-              <div class="shortcut-drag-preview__icon" [style.background-color]="shortcut.color || ''">
+              <div
+                class="shortcut-drag-preview__icon"
+                [style.background-color]="shortcut.color || ''"
+                [style.color]="shortcut.iconColor || ''"
+              >
                 {{ (shortcut.icon || shortcut.name.slice(0, 1) || 'S').slice(0, 1).toUpperCase() }}
               </div>
               <div class="shortcut-drag-preview__body">
@@ -447,8 +474,13 @@
         </div>
 
         <label>
-          <span>Color</span>
+          <span>Fondo icono</span>
           <input type="text" formControlName="color" placeholder="Ej: #39a9d7" />
+        </label>
+
+        <label>
+          <span>Color icono</span>
+          <input type="text" formControlName="iconColor" placeholder="Ej: #ffffff" />
         </label>
 
         <label>
