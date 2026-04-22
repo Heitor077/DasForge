@@ -23,6 +23,15 @@ npm run start:desktop
 
 ---
 
+## 📥 Descargar
+
+👉 **Última versión (Windows):**  
+https://github.com/Heitor077/DashForge/releases/latest
+
+> Descarga el instalador y ejecuta el `.exe` para empezar a usar DashForge.
+
+---
+
 ## 🧾 ¿Qué es DashForge?
 
 DashForge resuelve un problema común: tener accesos importantes dispersos entre navegador, carpetas, archivos y aplicaciones, sin una capa clara de organización.
@@ -249,10 +258,6 @@ DashForge/
 
 ---
 
-## 📥 Descargar
-
-👉 Última versión:
-https://github.com/Heitor077/DashForge/releases/tag/v0.1.1
 
 ## 💡 En qué se diferencia
 
